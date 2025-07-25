@@ -1,13 +1,31 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import { supabase } from '@/lib/supabase';
 
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 
-
 export default function TabLayout() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check initial auth status
+    const checkAuthStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuthStatus();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <Tabs
@@ -79,7 +97,7 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: 'Messages',
-          tabBarIcon: ({  focused }) => (
+          tabBarIcon: ({ focused }) => (
             <SimpleLineIcons 
               size={24} 
               name="bubble" 
@@ -91,11 +109,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Log in',
+          title: isAuthenticated ? 'Profile' : 'Log in',
           tabBarIcon: ({ color, focused }) => (
             <SimpleLineIcons 
               size={24} 
-              name="user" 
+              name={isAuthenticated ? 'user' : 'user'}
               color={focused ? '#FF385C' : '#6B7280'} 
             />
           ),

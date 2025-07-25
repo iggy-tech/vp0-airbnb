@@ -14,7 +14,7 @@ import {
   FlatList,
   Share
 } from 'react-native';
-import { SimpleLineIcons, Ionicons, Feather } from '@expo/vector-icons';
+import {  Ionicons, Feather } from '@expo/vector-icons';
 import AuthModal from '@/components/auth-modal';
 import { Text } from '@/components/text';
 
@@ -22,19 +22,19 @@ const categoryData = [
   { 
     id: 1, 
     title: 'Homes', 
-    icon: '🏠', 
+    image: require('@/assets/images/home.png'),
     active: true 
   },
   { 
     id: 2, 
     title: 'Experiences', 
-    icon: '🎈', 
+    image: require('@/assets/images/experiences.png'),
     badge: 'NEW' 
   },
   { 
     id: 3, 
     title: 'Services', 
-    icon: '🔔', 
+    image: require('@/assets/images/services.png'),
     badge: 'NEW' 
   },
 ];
@@ -355,7 +355,11 @@ export default function ExploreScreen() {
               ]}
             >
               <View style={styles.categoryIconContainer}>
-                <Text style={styles.categoryIcon}>{category.icon}</Text>
+                <Image 
+                  source={category.image} 
+                  style={styles.categoryImage}
+                  resizeMode="contain"
+                />
                 {category.badge && (
                   <Animated.View 
                     style={[
@@ -761,13 +765,14 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 8,
   },
-  categoryIcon: {
-    fontSize: 32,
+  categoryImage: {
+    width: 52,
+    height: 52,
   },
   badge: {
     position: 'absolute',
     top: -8,
-    right: -12,
+    right: -20,
     backgroundColor: '#1F2937',
     borderRadius: 8,
     paddingHorizontal: 6,
@@ -785,15 +790,14 @@ const styles = StyleSheet.create({
   },
   categoryTitleActive: {
     color: '#000',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   animatedIndicator: {
     position: 'absolute',
     bottom: 0,
     height: 3,
     backgroundColor: '#000',
-    borderRadius: 2,
-    left: '16.65%',
+    borderRadius: 20,
   },
   section: {
     marginBottom: 32,
@@ -817,7 +821,6 @@ const styles = StyleSheet.create({
     width: (screenWidth - 48) / 2.1,
     marginHorizontal: 8,
   },
-  cardContainer: {},
   imageContainer: {
     position: 'relative',
     marginBottom: 8,
@@ -1018,8 +1021,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 20,
     paddingBottom: 20,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
     minHeight: screenHeight * 1.5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },

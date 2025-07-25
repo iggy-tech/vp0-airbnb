@@ -7,12 +7,16 @@ import {
   Modal,
   SafeAreaView,
   ScrollView,
-  Alert 
+  Alert,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from './text';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '../lib/supabase';
+
+WebBrowser.maybeCompleteAuthSession();
 
 interface Country {
   name: string;
@@ -55,14 +59,63 @@ export default function AuthModal({ visible, onClose, onAuthSuccess }: AuthModal
   const [isPhoneFocused, setIsPhoneFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Configure Google Sign-In when component mounts
+  // Use Expo's Google auth provider with custom redirect
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    redirectUri: 'com.googleusercontent.apps.1098511002266-260os3vvurusndv8limak4u3hf2s1j7h://',
+  });
+
+  // Handle Google auth response
   useEffect(() => {
-    GoogleSignin.configure({
-      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-      offlineAccess: true,
-    });
-  }, []);
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      console.log('Google auth successful:', authentication);
+      
+      if (authentication?.idToken) {
+        handleSupabaseAuth(authentication.idToken);
+      } else {
+        Alert.alert('Error', 'No ID token received from Google');
+      }
+    } else if (response?.type === 'error') {
+      console.error('Google auth error:', response.error);
+      Alert.alert('Sign-In Error', response.error?.message || 'Authentication failed');
+    }
+  }, [response]);
+
+  const handleSupabaseAuth = async (idToken: string) => {
+    try {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+
+      if (error) {
+        console.error('Supabase Auth Error:', error);
+        Alert.alert('Authentication Error', error.message);
+        return;
+      }
+
+      // Success!
+      console.log('User authenticated:', data.user);
+      Alert.alert('Success!', 'You have been signed in successfully');
+      onAuthSuccess?.(data.user);
+      onClose();
+    } catch (error: any) {
+      console.error('Authentication Error:', error);
+      Alert.alert('Authentication Error', error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Simple Google Sign-In handler (stays in app!)
+  const handleGoogleSignIn = () => {
+    console.log('Starting Google Sign-In...');
+    promptAsync();
+  };
 
   const formatPhoneNumber = (value: string) => {
     const phoneNumber = value.replace(/[^\d]/g, '');
@@ -93,64 +146,6 @@ export default function AuthModal({ visible, onClose, onAuthSuccess }: AuthModal
   const handleCountrySelect = (country: Country) => {
     setSelectedCountry(country);
     setShowCountryPicker(false);
-  };
-
-  // Simple Google Sign-In using official library
-  const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Check if device supports Google Play Services
-      await GoogleSignin.hasPlayServices();
-      
-      // Sign in with Google
-      const userInfo = await GoogleSignin.signIn();
-      
-      console.log('Google Sign-In successful:', userInfo);
-      
-      // Get the ID token
-      const idToken = userInfo.idToken;
-      
-      if (idToken) {
-        // Sign in with Supabase using the ID token
-        const { data, error } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: idToken,
-        });
-
-        if (error) {
-          console.error('Supabase Auth Error:', error);
-          Alert.alert('Authentication Error', error.message);
-          return;
-        }
-
-        // Success!
-        console.log('User authenticated:', data.user);
-        Alert.alert('Success!', 'You have been signed in successfully');
-        onAuthSuccess?.(data.user);
-        onClose();
-      } else {
-        Alert.alert('Error', 'Failed to get ID token from Google');
-      }
-    } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
-      
-      switch (error.code) {
-        case statusCodes.SIGN_IN_CANCELLED:
-          console.log('User cancelled Google Sign-In');
-          break;
-        case statusCodes.IN_PROGRESS:
-          console.log('Sign in is already in progress');
-          break;
-        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-          Alert.alert('Error', 'Google Play Services not available');
-          break;
-        default:
-          Alert.alert('Sign-In Error', error.message || 'Failed to sign in with Google');
-      }
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const renderCountryPicker = () => (
@@ -277,10 +272,14 @@ export default function AuthModal({ visible, onClose, onAuthSuccess }: AuthModal
           <Pressable 
             style={[styles.socialButton, isLoading && styles.socialButtonLoading]}
             onPress={handleGoogleSignIn}
-            disabled={isLoading}
+            disabled={isLoading || !request}
           >
             <View style={styles.socialButtonContent}>
-              <Text style={[styles.socialButtonIcon, { fontSize: 18, fontWeight: 'bold', color: '#4285F4' }]}>G</Text>
+              <Image 
+                source={require('../assets/google-icon.png')} 
+                style={styles.googleLogo}
+                resizeMode="contain"
+              />
               <Text style={styles.socialButtonText}>
                 {isLoading ? 'Signing in...' : 'Continue with Google'}
               </Text>
@@ -522,6 +521,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   socialButtonIcon: {
+    position: 'absolute',
+    left: 0,
+  },
+  googleLogo: {
+    width: 20,
+    height: 20,
     position: 'absolute',
     left: 0,
   },

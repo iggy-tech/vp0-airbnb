@@ -1,11 +1,11 @@
 import { Text } from "@/components/text";
-import { View } from "react-native";
+import { SafeAreaView, View } from "react-native";
 
 const Wishlists = () => {
     return (
-        <View>
+        <SafeAreaView>
             <Text>Wishlists</Text>
-        </View>
+        </SafeAreaView>
     );
 }
  
