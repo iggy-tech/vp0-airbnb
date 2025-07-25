@@ -1,43 +1,104 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
+import { SimpleLineIcons } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#FF385C', // Airbnb red
+        tabBarInactiveTintColor: '#6B7280', // Gray
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
+            backgroundColor: 'white',
+            borderTopWidth: 1,
+            borderTopColor: '#E5E7EB',
           },
-          default: {},
+          default: {
+            backgroundColor: 'white',
+            borderTopWidth: 1,
+            borderTopColor: '#E5E7EB',
+          },
         }),
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '500',
+          marginTop: 4,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Explore',
+          tabBarIcon: ({ color, focused }) => (
+            <SimpleLineIcons 
+              size={24} 
+              name="magnifier" 
+              color={focused ? '#FF385C' : '#6B7280'} 
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="wishlists"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Wishlists',
+          tabBarIcon: ({ color, focused }) => (
+            <SimpleLineIcons 
+              size={24} 
+              name="heart" 
+              color={focused ? '#FF385C' : '#6B7280'} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="trips"
+        options={{
+          title: 'Trips',
+          tabBarIcon: ({ color, focused }) => (
+            <SimpleLineIcons 
+              size={24} 
+              name="location-pin" 
+              color={focused ? '#FF385C' : '#6B7280'} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: 'Messages',
+          tabBarIcon: ({  focused }) => (
+            <SimpleLineIcons 
+              size={24} 
+              name="bubble" 
+              color={focused ? '#FF385C' : '#6B7280'} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Log in',
+          tabBarIcon: ({ color, focused }) => (
+            <SimpleLineIcons 
+              size={24} 
+              name="user" 
+              color={focused ? '#FF385C' : '#6B7280'} 
+            />
+          ),
         }}
       />
     </Tabs>

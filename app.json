@@ -9,13 +9,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vp0.airbnb",
+      "urlSchemes": [
+        "vp0airbnb",
+        "com.googleusercontent.apps.1098511002266-260os3vvurusndv8limak4u3hf2s1j7h"
+      ]
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.vp0.airbnb",
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -32,6 +38,14 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.1098511002266-260os3vvurusndv8limak4u3hf2s1j7h"
         }
       ]
     ],
