@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -13,7 +13,20 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { supabase } from '@/lib/supabase';
+import AuthModal from '@/components/auth-modal';
 import { Text } from '@/components/text';
+
+interface User {
+  id: string;
+  email: string;
+  user_metadata: {
+    full_name?: string;
+    avatar_url?: string;
+    name?: string;
+    picture?: string;
+  };
+}
 
 const categoryTabs = ['All', 'Travelling', 'Support'];
 
@@ -89,12 +102,36 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function MessagesScreen() {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchText, setSearchText] = useState('');
   
   const searchAnimation = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    // Check initial auth status
+    const checkAuthStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setIsLoading(false);
+    };
+
+    checkAuthStatus();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+      if (event === 'SIGNED_OUT') {
+        setShowAuthModal(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Filter messages based on selected category
   const filteredMessages = selectedCategory === 'All' 
@@ -128,7 +165,7 @@ export default function MessagesScreen() {
     outputRange: [44, screenWidth - 140], // Leave space for cancel button and padding
   });
 
-  const handleChatPress = (message) => {
+  const handleChatPress = (message: any) => {
     // Navigate to the individual chat screen using Expo Router
     router.push({
       pathname: '/chat/[id]',
@@ -142,15 +179,56 @@ export default function MessagesScreen() {
     });
   };
 
-  const renderMessage = ({ item: message }) => (
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Signed Out State - Login Prompt
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Inbox</Text>
+        </View>
+
+        <View style={styles.emptyStateContainer}>
+          <Text style={styles.emptyTitle}>Log in to see messages</Text>
+          <Text style={styles.emptySubtitle}>
+            Once you login, you'll find messages from hosts here.
+          </Text>
+
+          <Pressable
+            style={styles.loginButton}
+            onPress={() => setShowAuthModal(true)}
+          >
+            <Text style={styles.loginButtonText}>Log in</Text>
+          </Pressable>
+        </View>
+
+        <AuthModal
+          visible={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onAuthSuccess={(user) => {
+            setUser(user);
+            setShowAuthModal(false);
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  // Signed In State - Show Messages
+  const renderMessage = ({ item: message }: { item: any }) => (
     <Pressable 
       style={styles.messageItem}
       onPress={() => handleChatPress(message)}
       android_ripple={{ color: '#f0f0f0' }}
-      style={({ pressed }) => [
-        styles.messageItem,
-        pressed && styles.messageItemPressed
-      ]}
     >
       <View style={styles.messageContent}>
         <View style={styles.avatarContainer}>
@@ -292,6 +370,48 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  // Empty State (Signed Out)
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    maxWidth: 400,
+    alignSelf: 'center',
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  loginButton: {
+    backgroundColor: '#E91E63',
+    paddingHorizontal: 48,
+    paddingVertical: 16,
+    borderRadius: 8,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  // Header
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
@@ -306,7 +426,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 16,
   },
-
   title: {
     fontSize: 32,
     fontWeight: '700',
@@ -357,6 +476,8 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: '500',
   },
+  
+  // Categories
   categoryScrollView: {
     paddingVertical: 4,
     marginBottom: 0,
@@ -387,6 +508,8 @@ const styles = StyleSheet.create({
   categoryTextActive: {
     color: '#fff',
   },
+  
+  // Content
   content: {
     height: screenHeight - 300,
     paddingTop: 4,
@@ -402,12 +525,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f5f5f5',
-  },
-  messageItemPressed: {
-    backgroundColor: '#f8f8f8',
-  },
-  messageItemPressed: {
-    backgroundColor: '#f8f8f8',
   },
   messageContent: {
     flexDirection: 'row',
@@ -495,18 +612,5 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: 24,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

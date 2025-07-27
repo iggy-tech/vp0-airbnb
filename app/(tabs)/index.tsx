@@ -1,4 +1,4 @@
-// app/(tabs)/index.tsx - Updated with data imports
+// app/(tabs)/index.tsx - Updated with category filtering
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
@@ -19,18 +19,139 @@ import { Text } from '@/components/text';
 
 // Import data from separate files
 import { categoryData } from '@/data/category-data';
-import { propertyData, PropertyData } from '@/data/property-data';
+import { PropertyData, propertyData } from '@/data/property-data';
+import SearchModal from '@/components/search-modal';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Enhanced category data with proper icons
+const enhancedCategoryData = [
+  { 
+    id: 1, 
+    title: 'Homes', 
+    icon: require('@/assets/images/home.png'), 
+    badge: null 
+  },
+  { 
+    id: 2, 
+    title: 'Experiences', 
+    icon: require('@/assets/images/experiences.png'), 
+    badge: 'NEW' 
+  },
+  { 
+    id: 3, 
+    title: 'Services', 
+    icon: require('@/assets/images/services.png'), 
+    badge: 'NEW' 
+  },
+];
+
+// Sample experiences data
+const experiencesData = [
+  {
+    id: 'exp1',
+    title: 'Lunch with fashion icon Lenny Niemeyer in her home',
+    subtitle: 'Rio de Janeiro, Brazil',
+    price: 'From $103 USD',
+    priceSubtext: '/ guest',
+    rating: '4.95',
+    badge: 'Original',
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop',
+    category: 'experiences'
+  },
+  {
+    id: 'exp2',
+    title: 'Deepen your intimacy skills with Dr Emily Morse',
+    subtitle: 'West Hollywood, United States',
+    price: 'From $150 USD',
+    priceSubtext: '/ guest',
+    rating: '4.98',
+    badge: 'Original',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop',
+    category: 'experiences'
+  },
+  {
+    id: 'exp3',
+    title: 'Toronto Island Kayak Adventure',
+    subtitle: 'Toronto, Ontario',
+    price: 'From $85 USD',
+    priceSubtext: '/ guest',
+    rating: '4.87',
+    badge: 'Popular',
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop',
+    category: 'experiences'
+  },
+  {
+    id: 'exp4',
+    title: 'CN Tower EdgeWalk Experience',
+    subtitle: 'Toronto, Ontario',
+    price: 'From $225 USD',
+    priceSubtext: '/ guest',
+    rating: '4.92',
+    badge: 'Popular',
+    image: 'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=400&h=300&fit=crop',
+    category: 'experiences'
+  }
+];
+
+// Sample services data
+const servicesData = [
+  {
+    id: 'serv1',
+    title: 'Professional Photography Session',
+    subtitle: 'Available in Toronto',
+    price: 'From $200 USD',
+    priceSubtext: '/ session',
+    rating: '4.94',
+    badge: null,
+    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
+    category: 'services'
+  },
+  {
+    id: 'serv2',
+    title: 'Personal Chef Experience',
+    subtitle: 'Available in Toronto',
+    price: 'From $180 USD',
+    priceSubtext: '/ meal',
+    rating: '4.89',
+    badge: null,
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop',
+    category: 'services'
+  },
+  {
+    id: 'serv3',
+    title: 'Hair Styling Service',
+    subtitle: 'Available in London',
+    price: 'From $120 USD',
+    priceSubtext: '/ appointment',
+    rating: '4.96',
+    badge: null,
+    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop',
+    category: 'services'
+  },
+  {
+    id: 'serv4',
+    title: 'Vintage Car Photo Tour',
+    subtitle: 'Rome, Italy',
+    price: 'From $65 USD',
+    priceSubtext: '/ guest',
+    rating: '4.94',
+    badge: null,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
+    category: 'services'
+  }
+];
+
 export default function ExploreScreen() {
   const [showAuthModal, setShowAuthModal] = useState(true);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [userAuthenticated, setUserAuthenticated] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<PropertyData | null>(null);
   
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnims = useRef(categoryData.map(() => new Animated.Value(1))).current;
+  const scaleAnims = useRef(enhancedCategoryData.map(() => new Animated.Value(1))).current;
+  const contentOpacity = useRef(new Animated.Value(1)).current;
   
   const tabWidth = (screenWidth - 48) / 3;
 
@@ -55,7 +176,24 @@ export default function ExploreScreen() {
   }, [selectedCategory, tabWidth]);
 
   const handleCategoryPress = (categoryId: number) => {
-    setSelectedCategory(categoryId);
+    if (categoryId === selectedCategory) return;
+
+    // Fade out content
+    Animated.timing(contentOpacity, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      // Change category
+      setSelectedCategory(categoryId);
+      
+      // Fade in new content
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    });
   };
 
   const handlePropertyPress = (property: PropertyData) => {
@@ -94,29 +232,91 @@ export default function ExploreScreen() {
     setShowAuthModal(true);
   };
 
-  // Get different sets of properties for different sections
-  const getPropertiesForSection = (sectionType: 'philadelphia' | 'miami'): PropertyData[] => {
-    switch (sectionType) {
-      case 'philadelphia':
-        return propertyData.filter(property => 
-          property.location.includes('Philadelphia') || 
-          property.location.includes('PA')
-        );
-      case 'miami':
-        return propertyData.filter(property => 
-          property.location.includes('Miami') || 
-          property.location.includes('FL') ||
-          property.location.includes('New York') ||
-          property.location.includes('Brooklyn')
-        );
+  const handleSearchPress = () => {
+    setShowSearchModal(true);
+  };
+
+  const handleSearchClose = () => {
+    setShowSearchModal(false);
+  };
+
+  const handleSearch = (query: string) => {
+    console.log('Searching for:', query);
+    // Implement search logic here
+  };
+
+  // Get content based on selected category
+  const getCategoryContent = () => {
+    switch (selectedCategory) {
+      case 1: // Homes
+        return {
+          sections: [
+            {
+              title: 'Popular homes in Philadelphia',
+              data: propertyData.filter(property => 
+                property.location.includes('Philadelphia') || property.location.includes('PA')
+              )
+            },
+            {
+              title: 'Available next month in Miami',
+              data: propertyData.filter(property => 
+                property.location.includes('Miami') || 
+                property.location.includes('FL') ||
+                property.location.includes('New York') ||
+                property.location.includes('Brooklyn')
+              )
+            },
+            {
+              title: 'Unique stays',
+              data: propertyData.slice(4, 8)
+            }
+          ]
+        };
+      
+      case 2: // Experiences
+        return {
+          sections: [
+            {
+              title: 'Airbnb Originals',
+              data: experiencesData.filter(exp => exp.badge === 'Original')
+            },
+            {
+              title: 'Popular with travellers from your area',
+              data: experiencesData.filter(exp => exp.badge === 'Popular')
+            },
+            {
+              title: 'Experiences in Toronto',
+              data: experiencesData.filter(exp => exp.subtitle.includes('Toronto'))
+            }
+          ]
+        };
+      
+      case 3: // Services
+        return {
+          sections: [
+            {
+              title: 'Services in London',
+              data: servicesData.slice(0, 2)
+            },
+            {
+              title: 'Discover services on Airbnb',
+              data: servicesData.slice(2, 4)
+            },
+            {
+              title: 'Photography',
+              data: servicesData.filter(service => service.title.includes('Photography') || service.title.includes('Photo'))
+            }
+          ]
+        };
+      
       default:
-        return propertyData;
+        return { sections: [] };
     }
   };
 
   const renderSearchBar = () => (
     <View style={styles.searchBarContainer}>
-      <Pressable style={styles.searchBar}>
+      <Pressable style={styles.searchBar} onPress={handleSearchPress}>
         <Ionicons name="search" size={20} color="#717171" />
         <Text style={styles.searchText}>Start your search</Text>
       </Pressable>
@@ -126,7 +326,7 @@ export default function ExploreScreen() {
   const renderCategories = () => (
     <View style={styles.categoryContainer}>
       <View style={styles.categoryTabs}>
-        {categoryData.map((category, index) => (
+        {enhancedCategoryData.map((category, index) => (
           <Pressable 
             key={category.id}
             style={styles.categoryItem}
@@ -142,7 +342,7 @@ export default function ExploreScreen() {
             >
               <View style={styles.categoryIconContainer}>
                 <Image 
-                  source={category.image} 
+                  source={category.icon} 
                   style={styles.categoryImage}
                   resizeMode="contain"
                 />
@@ -180,14 +380,14 @@ export default function ExploreScreen() {
           styles.animatedIndicator,
           {
             transform: [{ translateX: slideAnim }],
-            width: tabWidth * 0.3,
+            width: 60, // Fixed width that matches tab content
           }
         ]} 
       />
     </View>
   );
 
-  const renderPropertyCard = (property: PropertyData) => (
+  const renderPropertyCard = (property: any) => (
     <Pressable 
       key={property.id} 
       style={styles.propertyCard}
@@ -210,34 +410,42 @@ export default function ExploreScreen() {
           <Text style={styles.propertySubtitle} numberOfLines={1}>{property.subtitle}</Text>
           <View style={styles.propertyDetails}>
             <Text style={styles.propertyPrice}>{property.price} {property.priceSubtext}</Text>
-            <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={12} color="#000" />
-              <Text style={styles.ratingText}>{property.rating}</Text>
-            </View>
+            {property.rating && (
+              <View style={styles.ratingContainer}>
+                <Ionicons name="star" size={12} color="#000" />
+                <Text style={styles.ratingText}>{property.rating}</Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
     </Pressable>
   );
 
-  const renderSection = (title: string, properties: PropertyData[]) => (
-    <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        <Ionicons name="chevron-forward" size={20} color="#717171" />
+  const renderSection = (title: string, properties: any[]) => {
+    if (!properties || properties.length === 0) return null;
+    
+    return (
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{title}</Text>
+          <Ionicons name="chevron-forward" size={20} color="#717171" />
+        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.propertyList}
+          snapToInterval={screenWidth * 0.94}
+          decelerationRate="fast"
+          snapToAlignment="start"
+        >
+          {properties.map(renderPropertyCard)}
+        </ScrollView>
       </View>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.propertyList}
-        snapToInterval={screenWidth * 0.94}
-        decelerationRate="fast"
-        snapToAlignment="start"
-      >
-        {properties.map(renderPropertyCard)}
-      </ScrollView>
-    </View>
-  );
+    );
+  };
+
+  const categoryContent = getCategoryContent();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -249,14 +457,16 @@ export default function ExploreScreen() {
           {renderCategories()}
         </View>
 
-        {renderSection('Popular homes in Philadelphia', getPropertiesForSection('philadelphia'))}
-        {renderSection('Available next month in Miami', getPropertiesForSection('miami'))}
-        {renderSection('Unique stays', propertyData.slice(4, 8))}
+        <Animated.View style={{ opacity: contentOpacity }}>
+          {categoryContent.sections.map((section, index) => 
+            renderSection(section.title, section.data)
+          )}
 
-        <View style={styles.priceNotice}>
-          <Ionicons name="heart" size={16} color="#FF385C" />
-          <Text style={styles.priceNoticeText}>Prices include all fees</Text>
-        </View>
+          <View style={styles.priceNotice}>
+            <Ionicons name="heart" size={16} color="#FF385C" />
+            <Text style={styles.priceNoticeText}>Prices include all fees</Text>
+          </View>
+        </Animated.View>
       </ScrollView>
 
       {!userAuthenticated && !showAuthModal && (
@@ -271,6 +481,12 @@ export default function ExploreScreen() {
         visible={!!selectedProperty}
         onClose={handleCloseModal}
         onShare={handleSharePress}
+      />
+
+      <SearchModal
+        visible={showSearchModal}
+        onClose={handleSearchClose}
+        onSearch={handleSearch}
       />
       
       <AuthModal 

@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   mapContainer: {
     position: 'relative',
     height: 300,
-    borderRadius: 12,
+    borderRadius: 24,
     overflow: 'hidden',
     marginVertical: 16,
     backgroundColor: '#f0f0f0',

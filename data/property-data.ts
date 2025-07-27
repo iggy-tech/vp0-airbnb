@@ -108,7 +108,7 @@ export const propertyData: PropertyData[] = [
       'Free parking on premises',
       'Washer',
       'Air conditioning',
-      'Dedicated workspace',
+
       'TV',
       'Hair dryer'
     ],
@@ -155,8 +155,7 @@ export const propertyData: PropertyData[] = [
       'Dryer',
       'Air conditioning',
       'Heating',
-      'Dedicated workspace',
-      'TV with Netflix',
+
      
       'Dishwasher'
     ],
@@ -203,7 +202,7 @@ export const propertyData: PropertyData[] = [
       'TV',
       'Hair dryer',
       'Iron',
-      'Shared patio'
+
     ],
     description: 'Cozy private room in trendy Fishtown neighborhood. You will have access to shared common areas including kitchen and living room. The area is known for its vibrant arts scene, great restaurants, and nightlife. Easy access to public transportation.',
     location: 'Philadelphia, PA, USA',
@@ -294,8 +293,7 @@ export const propertyData: PropertyData[] = [
       'Heating',
       'TV',
       'Hair dryer',
-      'Iron',
-      'Balcony'
+
     ],
     description: 'Charming loft in historic Brooklyn Heights with stunning views of the Manhattan skyline. Features original hardwood floors, exposed beams, and modern amenities. Close to Brooklyn Bridge Park and the Promenade. Easy access to Manhattan via subway.',
     location: 'Brooklyn, NY, USA',
@@ -341,7 +339,7 @@ export const propertyData: PropertyData[] = [
       'Hair dryer',
       'Beach towels',
       'Pool access',
-      'Balcony with ocean view',
+   
   
       'Parking included'
     ],
@@ -384,11 +382,10 @@ export const propertyData: PropertyData[] = [
       'Kitchen',
       'Wifi',
       'Heating',
-      'Fireplace',
-      'Hot tub',
-      'Fire pit',
-      'BBQ grill',
-      'Hiking trails nearby',
+  
+  
+  
+
       'Free parking',
       'Pet friendly'
     ],
