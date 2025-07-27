@@ -30,8 +30,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF385C', // Airbnb red
-        tabBarInactiveTintColor: '#6B7280', // Gray
+        tabBarActiveTintColor: '#FF385C',
+        tabBarInactiveTintColor: '#6B7280',
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -58,7 +58,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ focused }) => (
             <SimpleLineIcons 
               size={24} 
               name="magnifier" 
@@ -71,7 +71,7 @@ export default function TabLayout() {
         name="wishlists"
         options={{
           title: 'Wishlists',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ focused }) => (
             <SimpleLineIcons 
               size={24} 
               name="heart" 
@@ -84,7 +84,7 @@ export default function TabLayout() {
         name="trips"
         options={{
           title: 'Trips',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ focused }) => (
             <SimpleLineIcons 
               size={24} 
               name="location-pin" 
@@ -110,13 +110,20 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: isAuthenticated ? 'Profile' : 'Log in',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ focused }) => (
             <SimpleLineIcons 
               size={24} 
-              name={isAuthenticated ? 'user' : 'user'}
+              name="user"
               color={focused ? '#FF385C' : '#6B7280'} 
             />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          href: null, // This completely hides it from the tab bar
+          headerShown: false,
         }}
       />
     </Tabs>

@@ -42,7 +42,7 @@ const categoryData = [
 const propertyData = [
   {
     id: 1,
-    title: 'A home like room minutes away from airport',
+    title: 'A here we are room minutes away from airport',
     subtitle: 'Room in Toronto, Canada',
     details: '1 bed · Shared bathroom',
     price: '$34 USD',
@@ -157,7 +157,7 @@ export default function ExploreScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scaleAnims = useRef(categoryData.map(() => new Animated.Value(1))).current;
   
-  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [selectedProperty, setSelectedProperty] = useState<typeof propertyData[0] | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [headerStyle, setHeaderStyle] = useState('overlay');
   
