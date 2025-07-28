@@ -70,7 +70,19 @@ export default function TripsScreen() {
     // Check initial auth status
     const checkAuthStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      setUser(session?.user
+        ? {
+            id: session.user.id,
+            email: session.user.email ?? '',
+            user_metadata: {
+              full_name: session.user.user_metadata?.full_name,
+              avatar_url: session.user.user_metadata?.avatar_url,
+              name: session.user.user_metadata?.name,
+              picture: session.user.user_metadata?.picture,
+            },
+          }
+        : null
+      );
       setIsLoading(false);
     };
 
@@ -78,7 +90,19 @@ export default function TripsScreen() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
+      setUser(session?.user
+        ? {
+            id: session.user.id,
+            email: session.user.email ?? '',
+            user_metadata: {
+              full_name: session.user.user_metadata?.full_name,
+              avatar_url: session.user.user_metadata?.avatar_url,
+              name: session.user.user_metadata?.name,
+              picture: session.user.user_metadata?.picture,
+            },
+          }
+        : null
+      );
       if (event === 'SIGNED_OUT') {
         setShowAuthModal(false);
       }
@@ -108,7 +132,7 @@ export default function TripsScreen() {
         <View style={styles.emptyStateContainer}>
           <Text style={styles.emptyTitle}>No trips yet</Text>
           <Text style={styles.emptySubtitle}>
-            When you're ready to plan your next trip, we're here to help.
+            When you&apos;re ready to plan your next trip, we&apos;re here to help.
           </Text>
 
           <Pressable

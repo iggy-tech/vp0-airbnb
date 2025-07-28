@@ -116,7 +116,11 @@ export default function MessagesScreen() {
     // Check initial auth status
     const checkAuthStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      setUser(session?.user ? {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        user_metadata: session.user.user_metadata ?? {},
+      } : null);
       setIsLoading(false);
     };
 
@@ -124,7 +128,11 @@ export default function MessagesScreen() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
+      setUser(session?.user ? {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        user_metadata: session.user.user_metadata ?? {},
+      } : null);
       if (event === 'SIGNED_OUT') {
         setShowAuthModal(false);
       }
@@ -200,7 +208,7 @@ export default function MessagesScreen() {
         <View style={styles.emptyStateContainer}>
           <Text style={styles.emptyTitle}>Log in to see messages</Text>
           <Text style={styles.emptySubtitle}>
-            Once you login, you'll find messages from hosts here.
+            Once you login, you&apos;ll find messages from hosts here.
           </Text>
 
           <Pressable
@@ -420,7 +428,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    minHeight: 44,
+    minHeight: 40,
   },
   titleHeader: {
     paddingHorizontal: 24,

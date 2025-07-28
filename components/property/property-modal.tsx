@@ -19,7 +19,6 @@ import PropertyAmenities from './property-amenities';
 import PropertyFeatures from './property-features';
 import PropertyMap from './property-map';
 import PropertyReviews from './property-review';
-import EnhancedPropertyHostInfo from './property-host-info';
 import PropertyPolicies from './property-policies';
 import PropertyHostInfo from '../property-host-info';
 

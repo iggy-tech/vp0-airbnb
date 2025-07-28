@@ -17,8 +17,7 @@ import AuthModal from '@/components/auth-modal';
 import PropertyModal from '@/components/property/property-modal';
 import { Text } from '@/components/text';
 
-// Import data from separate files
-import { categoryData } from '@/data/category-data';
+
 import { PropertyData, propertyData } from '@/data/property-data';
 import SearchModal from '@/components/search-modal';
 
@@ -469,13 +468,7 @@ export default function ExploreScreen() {
         </Animated.View>
       </ScrollView>
 
-      {!userAuthenticated && !showAuthModal && (
-        <Pressable style={styles.floatingLoginButton} onPress={handleOpenAuthModal}>
-          <Ionicons name="person-outline" size={20} color="#fff" />
-          <Text style={styles.floatingLoginText}>Log in</Text>
-        </Pressable>
-      )}
-
+  
       <PropertyModal
         property={selectedProperty}
         visible={!!selectedProperty}

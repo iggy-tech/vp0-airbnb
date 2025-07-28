@@ -17,8 +17,18 @@ import { Text } from '@/components/text';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-// Hard-coded chat messages for demo
-const chatMessages = [
+type ChatMessage = {
+  id: number;
+  text: string;
+  isHost?: boolean;
+  isSystem?: boolean;
+  timestamp: string;
+  isRead?: boolean;
+  hasAction?: boolean;
+  actionText?: string;
+};
+
+const chatMessages: ChatMessage[] = [
   {
     id: 1,
     text: "Usually",
@@ -55,7 +65,7 @@ export default function ChatScreen() {
   const { id, hostName, hostAvatar, propertyImage, details } = useLocalSearchParams();
   const [messageText, setMessageText] = useState('');
   const [messages, setMessages] = useState(chatMessages);
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList<any>>(null);
 
   useEffect(() => {
     // Scroll to bottom when component mounts
@@ -73,10 +83,8 @@ export default function ChatScreen() {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isRead: false,
       };
-      
-      setMessages([...messages, newMessage]);
+      setMessages(prevMessages => [...prevMessages, newMessage]);
       setMessageText('');
-      
       // Scroll to bottom after sending message
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
@@ -84,7 +92,7 @@ export default function ChatScreen() {
     }
   };
 
-  const renderMessage = ({ item: message }) => {
+  const renderMessage = ({ item: message }: { item: ChatMessage }) => {
     if (message.isSystem) {
       return (
         <View style={styles.systemMessageContainer}>
@@ -99,7 +107,7 @@ export default function ChatScreen() {
         message.isHost ? styles.hostMessageContainer : styles.userMessageContainer
       ]}>
         {message.isHost && (
-          <Image source={{ uri: hostAvatar }} style={styles.messageAvatar} />
+          <Image source={{ uri: Array.isArray(hostAvatar) ? hostAvatar[0] : hostAvatar }} style={styles.messageAvatar} />
         )}
         
         <View style={[
@@ -139,7 +147,7 @@ export default function ChatScreen() {
         </Pressable>
         
         <View style={styles.headerInfo}>
-          <Image source={{ uri: hostAvatar }} style={styles.headerAvatar} />
+          <Image source={{ uri: Array.isArray(hostAvatar) ? hostAvatar[0] : hostAvatar }} style={styles.headerAvatar} />
           <View style={styles.headerText}>
             <Text style={styles.headerName}>{hostName}</Text>
             <Text style={styles.headerDetails}>{details}</Text>

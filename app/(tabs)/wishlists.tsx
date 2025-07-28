@@ -12,7 +12,7 @@ import { Text } from '@/components/text';
 
 interface User {
   id: string;
-  email: string;
+  email?: string;
   user_metadata: {
     full_name?: string;
     avatar_url?: string;

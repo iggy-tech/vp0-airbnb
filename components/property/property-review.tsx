@@ -118,7 +118,7 @@ export default function PropertyReviews({
             <Text style={styles.laurelEmoji}>🌿</Text>
           </View>
           <Text style={styles.largeRating}>{rating}</Text>
-          <View style={styles.laurelRight}>
+          <View>
             <Text style={styles.laurelEmoji}>🌿</Text>
           </View>
         </View>
