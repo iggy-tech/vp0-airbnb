@@ -27,7 +27,7 @@ const reviewsData: Review[] = [
   {
     id: 1,
     userName: 'Catherine',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
+    userAvatar: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     rating: 5,
     date: 'May 2025',
     text: 'House was beautiful and well laid out. Nice individualisation with the painting. Some features made it less kid friendly e.g. blinds not properly attached. We did self ch...',

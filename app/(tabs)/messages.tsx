@@ -290,7 +290,7 @@ export default function MessagesScreen() {
                   <TextInput
                     ref={searchInputRef}
                     style={styles.searchInput}
-                    placeholder="Search all messages"
+                 
                     value={searchText}
                     onChangeText={setSearchText}
                     placeholderTextColor="#666"

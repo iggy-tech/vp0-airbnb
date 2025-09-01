@@ -227,7 +227,7 @@ export default function AuthModal({ visible, onClose, onAuthSuccess }: AuthModal
         </View>
         
         <Text style={styles.disclaimer}>
-          We'll call or text to confirm your number. Standard message and data rates apply.
+          We&apos;ll call or text to confirm your number. Standard message and data rates apply.
         </Text>
       </View>
 
@@ -334,7 +334,7 @@ export default function AuthModal({ visible, onClose, onAuthSuccess }: AuthModal
 
         <Pressable style={styles.linkButton}>
           <Text style={styles.resendText}>
-            Didn't get an SMS? <Text style={styles.resendLink}>Send again</Text>
+            Didn&apos;t get an SMS? <Text style={styles.resendLink}>Send again</Text>
           </Text>
         </Pressable>
 
@@ -451,6 +451,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     color: '#222222',
+    fontFamily:'figtree'
   },
   disclaimer: {
     fontSize: 12,

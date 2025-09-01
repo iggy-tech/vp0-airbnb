@@ -1,4 +1,4 @@
-// app/(tabs)/index.tsx - Updated with category filtering
+// app/(tabs)/index.tsx - Fixed category alignment and Poppins font
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
@@ -16,12 +16,14 @@ import { Ionicons } from '@expo/vector-icons';
 import AuthModal from '@/components/auth-modal';
 import PropertyModal from '@/components/property/property-modal';
 import { Text } from '@/components/text';
+import { useFonts } from 'expo-font';
 
-
-import { PropertyData, propertyData } from '@/data/property-data';
+import { propertyData } from '@/data/property-data';
 import SearchModal from '@/components/search-modal';
+import { experiencesData } from '@/data/experiences-data';
+import { servicesData } from '@/data/services-data';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 // Enhanced category data with proper icons
 const enhancedCategoryData = [
@@ -45,117 +47,30 @@ const enhancedCategoryData = [
   },
 ];
 
-// Sample experiences data
-const experiencesData = [
-  {
-    id: 'exp1',
-    title: 'Lunch with fashion icon Lenny Niemeyer in her home',
-    subtitle: 'Rio de Janeiro, Brazil',
-    price: 'From $103 USD',
-    priceSubtext: '/ guest',
-    rating: '4.95',
-    badge: 'Original',
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop',
-    category: 'experiences'
-  },
-  {
-    id: 'exp2',
-    title: 'Deepen your intimacy skills with Dr Emily Morse',
-    subtitle: 'West Hollywood, United States',
-    price: 'From $150 USD',
-    priceSubtext: '/ guest',
-    rating: '4.98',
-    badge: 'Original',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop',
-    category: 'experiences'
-  },
-  {
-    id: 'exp3',
-    title: 'Toronto Island Kayak Adventure',
-    subtitle: 'Toronto, Ontario',
-    price: 'From $85 USD',
-    priceSubtext: '/ guest',
-    rating: '4.87',
-    badge: 'Popular',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop',
-    category: 'experiences'
-  },
-  {
-    id: 'exp4',
-    title: 'CN Tower EdgeWalk Experience',
-    subtitle: 'Toronto, Ontario',
-    price: 'From $225 USD',
-    priceSubtext: '/ guest',
-    rating: '4.92',
-    badge: 'Popular',
-    image: 'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=400&h=300&fit=crop',
-    category: 'experiences'
-  }
-];
 
-// Sample services data
-const servicesData = [
-  {
-    id: 'serv1',
-    title: 'Professional Photography Session',
-    subtitle: 'Available in Toronto',
-    price: 'From $200 USD',
-    priceSubtext: '/ session',
-    rating: '4.94',
-    badge: null,
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=300&fit=crop',
-    category: 'services'
-  },
-  {
-    id: 'serv2',
-    title: 'Personal Chef Experience',
-    subtitle: 'Available in Toronto',
-    price: 'From $180 USD',
-    priceSubtext: '/ meal',
-    rating: '4.89',
-    badge: null,
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop',
-    category: 'services'
-  },
-  {
-    id: 'serv3',
-    title: 'Hair Styling Service',
-    subtitle: 'Available in London',
-    price: 'From $120 USD',
-    priceSubtext: '/ appointment',
-    rating: '4.96',
-    badge: null,
-    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop',
-    category: 'services'
-  },
-  {
-    id: 'serv4',
-    title: 'Vintage Car Photo Tour',
-    subtitle: 'Rome, Italy',
-    price: 'From $65 USD',
-    priceSubtext: '/ guest',
-    rating: '4.94',
-    badge: null,
-    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-    category: 'services'
-  }
-];
 
 export default function ExploreScreen() {
   const [showAuthModal, setShowAuthModal] = useState(true);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [userAuthenticated, setUserAuthenticated] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<PropertyData | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<any | null>(null);
   
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scaleAnims = useRef(enhancedCategoryData.map(() => new Animated.Value(1))).current;
   const contentOpacity = useRef(new Animated.Value(1)).current;
   
-  const tabWidth = (screenWidth - 48) / 3;
+  const tabWidth = (screenWidth - 48) / 3; // Total width minus padding divided by 3 tabs
+  const indicatorWidth = tabWidth * 0.8; // Make indicator slightly smaller than tab
+  const indicatorOffset = (tabWidth - indicatorWidth) / 2; // Center the indicator within the tab
+
+  // Load Poppins fonts
+  const [fontsLoaded] = useFonts({
+    'Figtree-Regular': require('@/assets/fonts/figtree-regular.ttf'),
+  });
 
   useEffect(() => {
-    const targetPosition = (selectedCategory - 1) * tabWidth;
+    const targetPosition = (selectedCategory - 1) * tabWidth + indicatorOffset;
     
     Animated.spring(slideAnim, {
       toValue: targetPosition,
@@ -166,13 +81,13 @@ export default function ExploreScreen() {
 
     scaleAnims.forEach((anim, index) => {
       Animated.spring(anim, {
-        toValue: selectedCategory === index + 1 ? 1.1 : 1,
+        toValue: selectedCategory === index + 1 ? 1.05 : 1,
         useNativeDriver: true,
         tension: 300,
         friction: 8,
       }).start();
     });
-  }, [selectedCategory, tabWidth]);
+  }, [selectedCategory, tabWidth, indicatorOffset]);
 
   const handleCategoryPress = (categoryId: number) => {
     if (categoryId === selectedCategory) return;
@@ -195,7 +110,7 @@ export default function ExploreScreen() {
     });
   };
 
-  const handlePropertyPress = (property: PropertyData) => {
+  const handlePropertyPress = (property: any) => {
     setSelectedProperty(property);
   };
 
@@ -227,9 +142,7 @@ export default function ExploreScreen() {
     setShowAuthModal(false);
   };
 
-  const handleOpenAuthModal = () => {
-    setShowAuthModal(true);
-  };
+
 
   const handleSearchPress = () => {
     setShowSearchModal(true);
@@ -294,7 +207,7 @@ export default function ExploreScreen() {
         return {
           sections: [
             {
-              title: 'Services in London',
+              title: 'Services in Toronto',
               data: servicesData.slice(0, 2)
             },
             {
@@ -379,7 +292,7 @@ export default function ExploreScreen() {
           styles.animatedIndicator,
           {
             transform: [{ translateX: slideAnim }],
-            width: 60, // Fixed width that matches tab content
+            width: indicatorWidth,
           }
         ]} 
       />
@@ -408,7 +321,7 @@ export default function ExploreScreen() {
           <Text style={styles.propertyTitle} numberOfLines={2}>{property.title}</Text>
           <Text style={styles.propertySubtitle} numberOfLines={1}>{property.subtitle}</Text>
           <View style={styles.propertyDetails}>
-            <Text style={styles.propertyPrice}>{property.price} {property.priceSubtext}</Text>
+            <Text style={styles.propertyPrice}>{property.price}</Text>
             {property.rating && (
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={12} color="#000" />
@@ -446,6 +359,10 @@ export default function ExploreScreen() {
 
   const categoryContent = getCategoryContent();
 
+  if (!fontsLoaded) {
+    return null; // Or your loading component
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
@@ -456,10 +373,15 @@ export default function ExploreScreen() {
           {renderCategories()}
         </View>
 
-        <Animated.View style={{ opacity: contentOpacity }}>
-          {categoryContent.sections.map((section, index) => 
-            renderSection(section.title, section.data)
-          )}
+        <Animated.View 
+          key={selectedCategory}
+       
+        >
+          {categoryContent.sections.map((section, index) => (
+            <View key={index}>
+              {renderSection(section.title, section.data)}
+            </View>
+          ))}
 
           <View style={styles.priceNotice}>
             <Ionicons name="heart" size={16} color="#FF385C" />
@@ -527,7 +449,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 16,
     color: '#717171',
-    fontWeight: '500',
+    fontFamily: 'Poppins-Medium',
   },
   categoryContainer: {
     position: 'relative',
@@ -548,7 +470,7 @@ const styles = StyleSheet.create({
   },
   categoryIconContainer: {
     position: 'relative',
-    marginBottom: 8,
+    marginBottom: 2,
   },
   categoryImage: {
     width: 52,
@@ -566,16 +488,16 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: 'figtree',
   },
   categoryTitle: {
     fontSize: 12,
     color: '#717171',
-    fontWeight: '500',
+    fontFamily: 'figtree',
   },
   categoryTitleActive: {
     color: '#000',
-    fontWeight: '500',
+    fontFamily: 'figtree',
   },
   animatedIndicator: {
     position: 'absolute',
@@ -583,6 +505,7 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: '#000',
     borderRadius: 20,
+    left: 24, // Account for container padding
   },
   section: {
     marginBottom: 32,
@@ -596,7 +519,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Poppins-SemiBold',
     color: '#000',
   },
   propertyList: {
@@ -630,7 +553,7 @@ const styles = StyleSheet.create({
   },
   guestFavoriteText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Poppins-SemiBold',
     color: '#000',
   },
   heartButton: {
@@ -649,7 +572,7 @@ const styles = StyleSheet.create({
   },
   propertyTitle: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: 'Poppins-Medium',
     color: '#000',
     marginBottom: 2,
   },
@@ -657,6 +580,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#717171',
     marginBottom: 4,
+    fontFamily: 'Poppins-Regular',
   },
   propertyDetails: {
     flexDirection: 'row',
@@ -664,18 +588,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   propertyPrice: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#717171',
+    fontFamily: 'Poppins-Regular',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   ratingText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#000',
     marginLeft: 4,
-    fontWeight: '500',
+    fontFamily: 'figtree',
   },
   priceNotice: {
     flexDirection: 'row',
@@ -691,7 +616,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     color: '#000',
-    fontWeight: '500',
+    fontFamily: 'Poppins-Medium',
   },
   floatingLoginButton: {
     position: 'absolute',
@@ -713,7 +638,7 @@ const styles = StyleSheet.create({
   floatingLoginText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'figtree',
     marginLeft: 8,
   },
 });

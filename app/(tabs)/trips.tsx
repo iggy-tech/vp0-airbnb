@@ -474,6 +474,8 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
+    borderWidth: 1,
+    borderColor: '#eee',
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,

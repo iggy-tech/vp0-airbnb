@@ -41,7 +41,7 @@ function NotificationsScreen({ onBack }: { onBack: () => void }) {
           <Ionicons name="notifications" size={64} color="#ccc" />
           <Text style={styles.noNotificationsTitle}>No notifications yet</Text>
           <Text style={styles.noNotificationsSubtitle}>
-            You've got a blank state (for now). We'll let you know when updates arrive.
+            You&apos;ve got a blank state (for now). We&apos;ll let you know when updates arrive.
           </Text>
         </View>
       </View>
@@ -59,7 +59,11 @@ export default function ProfileScreen() {
     // Check initial auth status
     const checkAuthStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      setUser(session?.user ? {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        user_metadata: session.user.user_metadata ?? {},
+      } : null);
       setIsLoading(false);
     };
 
@@ -67,7 +71,11 @@ export default function ProfileScreen() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
+      setUser(session?.user ? {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        user_metadata: session.user.user_metadata ?? {},
+      } : null);
       if (event === 'SIGNED_OUT') {
         setShowAuthModal(false);
         setShowNotifications(false);
@@ -196,7 +204,7 @@ export default function ProfileScreen() {
         <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
             {getUserAvatar() ? (
-              <Image source={{ uri: getUserAvatar() }} style={styles.avatar} />
+              <Image source={{ uri: getUserAvatar() || '' }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
                 <Ionicons name="person" size={40} color="#999" />
@@ -231,7 +239,7 @@ export default function ProfileScreen() {
           <View style={styles.hostContent}>
             <Text style={styles.hostTitle}>Become a host</Text>
             <Text style={styles.hostSubtitle}>
-              It's easy to start hosting and earn extra income.
+              It&apos;s easy to start hosting and earn extra income.
             </Text>
           </View>
         </View>

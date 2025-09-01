@@ -202,35 +202,35 @@ export default function SearchModal({
     ]).start();
   };
 
-  const animateCategoryIndicator = () => {
-    // Calculate actual tab widths instead of fixed screen division
-    const totalCategories = categories.length;
-    const availableWidth = screenWidth - 40; // Account for horizontal padding (20px each side)
-    const tabSpacing = availableWidth / totalCategories;
-    
-    // Calculate the actual width of text + icon for the selected category
-    const selectedCategory = categories.find(cat => cat.id === selectedCategory);
-    const estimatedTabWidth = 80; // Approximate width based on icon + text
-    
-    // Position the indicator in the center of the selected tab
-    const targetPosition = (selectedCategory - 1) * tabSpacing + (tabSpacing - estimatedTabWidth) / 2;
-    
-    Animated.spring(categorySlideAnim, {
-      toValue: targetPosition,
+const animateCategoryIndicator = () => {
+  // Since we're using flex: 1 for each category, each takes equal space
+  const totalCategories = categories.length;
+  const containerWidth = screenWidth - 40; // Account for horizontal padding (20px each side)
+  const categoryWidth = containerWidth / totalCategories;
+  
+  // Calculate the center position for the selected category
+  const centerPosition = (selectedCategory - 1) * categoryWidth + categoryWidth / 2;
+  
+  // The indicator should be centered, so subtract half its width
+  const indicatorWidth = 60; // Adjust this based on your desired indicator width
+  const targetPosition = centerPosition - indicatorWidth / 2;
+  
+  Animated.spring(categorySlideAnim, {
+    toValue: targetPosition,
+    tension: 300,
+    friction: 20,
+    useNativeDriver: false,
+  }).start();
+
+  categoryAnimations.forEach((anim, index) => {
+    Animated.spring(anim, {
+      toValue: selectedCategory === index + 1 ? 1.1 : 1,
       tension: 300,
-      friction: 20,
+      friction: 8,
       useNativeDriver: false,
     }).start();
-
-    categoryAnimations.forEach((anim, index) => {
-      Animated.spring(anim, {
-        toValue: selectedCategory === index + 1 ? 1.1 : 1,
-        tension: 300,
-        friction: 8,
-        useNativeDriver: false,
-      }).start();
-    });
-  };
+  });
+};
 
   const animateSections = () => {
     Object.keys(sectionAnimations).forEach((key) => {
@@ -549,7 +549,7 @@ export default function SearchModal({
 
         {isExpanded && (
           <Animated.View style={styles.sectionContent}>
-            <View style={styles.guestCounter}>
+            <View>
               <View style={styles.guestRow}>
                 <View>
                   <Text style={styles.guestType}>Adults</Text>
@@ -841,7 +841,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     height: 2,
-    width: screenWidth / 3,
+
     backgroundColor: '#000',
     borderRadius: 1,
   },
